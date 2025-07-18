@@ -1,0 +1,80 @@
+import { useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
+import { Mail, Lock, LogIn } from 'lucide-react';
+
+export default function Login() {
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error('Please fill all fields.');
+      return;
+    }
+    try {
+      await login(email, password);
+      toast.success('Welcome back!');
+      navigate('/');
+    } catch (err) {
+      console.error(err);
+      const errorMsg = err.response?.data?.message || 'Invalid credentials.';
+      toast.error(errorMsg);
+    }
+  };
+
+  return (
+    <motion.div
+      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-100 px-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      <motion.form
+        onSubmit={handleLogin}
+        className="bg-white/20 backdrop-blur-2xl border border-white/30 shadow-2xl rounded-3xl p-10 w-full max-w-sm"
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+      >
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <LogIn size={32} className="text-purple-700" />
+          <h2 className="text-4xl font-extrabold text-gray-800">Login</h2>
+        </div>
+
+        <div className="relative mb-6">
+          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full pl-12 pr-4 py-4 border border-white/40 bg-white/20 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-purple-300 transition"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+
+        <div className="relative mb-8">
+          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full pl-12 pr-4 py-4 border border-white/40 bg-white/20 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-purple-300 transition"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-xl font-semibold transition focus:ring-4 focus:ring-purple-300"
+        >
+          Login
+        </button>
+      </motion.form>
+    </motion.div>
+  );
+}
