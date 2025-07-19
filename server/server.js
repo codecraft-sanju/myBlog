@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+// import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
@@ -12,18 +12,21 @@ const app = express();
 // Security headers
 app.use(helmet());
 
-// Rate limit (100 reqs per 15 min per IP)
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
-app.use(limiter);
-
-// JSON parser + CORS
-app.use(cors());
+// // Rate limit (100 reqs per 15 min per IP)
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000,
+//   max: 100,
+// });
+// app.use(limiter);
 app.use(express.json());
 
-// Routes
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  }),
+);
+
 import authRoutes from './routes/auth.js';
 import postRoutes from './routes/posts.js';
 import commentRoutes from './routes/comments.js';
@@ -33,7 +36,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 
 app.get('/', (req, res) => {
-  res.send('API is running ');
+  res.send('API is running');
 });
 
 const PORT = process.env.PORT || 5000;
@@ -49,4 +52,4 @@ mongoose
       console.log(` Server running at http://localhost:${PORT}`),
     );
   })
-  .catch((err) => console.error('MongoDB connection error:', err));
+  .catch((err) => console.error(' MongoDB connection error:', err));

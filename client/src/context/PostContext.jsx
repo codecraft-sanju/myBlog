@@ -7,13 +7,16 @@ export const PostContext = createContext();
 
 export const PostProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
-  const { user } = useContext(AuthContext);
-
-  const isAuthenticated = !!user;
+  const { isAuthenticated } = useContext(AuthContext);
 
   const getPosts = async (page = 1, limit = 10) => {
-    const res = await API.get(`/posts?page=${page}&limit=${limit}`);
-    setPosts(res.data);
+    try {
+      const res = await API.get(`/posts?page=${page}&limit=${limit}`);
+      setPosts(res.data);
+    } catch (err) {
+      console.error('❌ Failed to load posts:', err);
+      setPosts([]); // fallback
+    }
   };
 
   const getPostById = async (id) => {
@@ -26,11 +29,7 @@ export const PostProvider = ({ children }) => {
       toast.error('Please login first.');
       return;
     }
-    await API.post('/posts', { title, content }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+    await API.post('/posts', { title, content });
     getPosts();
   };
 
@@ -39,11 +38,7 @@ export const PostProvider = ({ children }) => {
       toast.error('Please login first.');
       return;
     }
-    await API.put(`/posts/${id}`, data, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+    await API.put(`/posts/${id}`, data);
     getPosts();
   };
 
@@ -52,34 +47,22 @@ export const PostProvider = ({ children }) => {
       toast.error('Please login first.');
       return;
     }
-    await API.delete(`/posts/${id}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+    await API.delete(`/posts/${id}`);
     getPosts();
   };
-
-
 
   const likePost = async (id) => {
     if (!isAuthenticated) {
       toast.error('Please login first.');
       return;
     }
-    const res = await API.put(`/posts/${id}/like`, {}, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-
+    const res = await API.put(`/posts/${id}/like`);
     toast.success(res.data.likedByUser ? 'Liked!' : 'Unliked!');
-    getPosts(); 
-    return res.data; 
+    getPosts();
+    return res.data;
   };
 
-  
-   useEffect(() => {
+  useEffect(() => {
     getPosts();
   }, []);
 
@@ -92,7 +75,7 @@ export const PostProvider = ({ children }) => {
         createPost,
         updatePost,
         deletePost,
-        likePost, 
+        likePost,
       }}
     >
       {children}

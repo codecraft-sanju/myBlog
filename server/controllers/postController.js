@@ -29,6 +29,7 @@ export const getPosts = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
 
     const posts = await Post.find()
+      .sort({ createdAt: -1 }) 
       .populate('author', 'username')
       .skip((page - 1) * limit)
       .limit(limit);
@@ -55,6 +56,7 @@ export const getPostById = async (req, res) => {
 export const updatePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ message: 'Post not found.' });
 
     if (post.author.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Unauthorized' });
@@ -75,6 +77,7 @@ export const updatePost = async (req, res) => {
 export const deletePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ message: 'Post not found.' });
 
     if (post.author.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Unauthorized' });
@@ -87,7 +90,6 @@ export const deletePost = async (req, res) => {
   }
 };
 
-// Like or Unlike a post
 export const likePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -96,10 +98,8 @@ export const likePost = async (req, res) => {
     if (!post) return res.status(404).json({ message: 'Post not found.' });
 
     if (post.likes.includes(userId)) {
-      // Unlike
       post.likes = post.likes.filter((id) => id.toString() !== userId);
     } else {
-      // Like
       post.likes.push(userId);
     }
 
@@ -112,4 +112,3 @@ export const likePost = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-

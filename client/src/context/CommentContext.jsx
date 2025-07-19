@@ -1,12 +1,12 @@
 import { createContext, useContext } from 'react';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
-import { AuthContext } from './AuthContext'; 
+import { AuthContext } from './AuthContext';
 
 export const CommentContext = createContext();
 
 export const CommentProvider = ({ children }) => {
-  const { isAuthenticated } = useContext(AuthContext); 
+  const { isAuthenticated } = useContext(AuthContext);
 
   const getComments = async (postId) => {
     const res = await API.get(`/comments/${postId}`);
