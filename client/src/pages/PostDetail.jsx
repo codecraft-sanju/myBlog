@@ -62,19 +62,17 @@ export default function PostDetail() {
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
         {/* Main Content */}
-        <div className="md:col-span-2 flex flex-col">
+        <div className="md:col-span-2 flex flex-col space-y-6">
           <motion.header
-            className="mb-4"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <h1 className="text-2xl md:text-3xl font-bold text-purple-900 mb-2 break-words">
-              {post.title}
-            </h1>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-sm mb-2">
               By{' '}
-              <span className="font-semibold text-purple-800">{post.author.username}</span>{' '}
+              <span className="font-semibold text-purple-800">
+                {post.author.username}
+              </span>{' '}
               • {new Date(post.createdAt).toLocaleDateString()}
             </p>
           </motion.header>
@@ -83,27 +81,44 @@ export default function PostDetail() {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleLike}
-              className="flex items-center gap-2 bg-purple-100 hover:bg-purple-200 text-purple-700 font-medium px-5 py-2 rounded-full transition shadow hover:shadow-md mb-6 w-fit"
+              className="flex items-center gap-2 bg-purple-100 hover:bg-purple-200 text-purple-700 font-medium px-5 py-2 rounded-full transition shadow hover:shadow-md w-fit"
             >
               <Heart size={20} className="fill-purple-600" />
               {post.likes?.length || 0} Likes
             </motion.button>
           )}
 
-          <motion.article
-            className="text-gray-800 leading-relaxed whitespace-pre-line break-words text-base md:text-lg"
+          {/* Title */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="space-y-2"
+          >
+            <h2 className="text-lg font-semibold text-purple-900">Title:</h2>
+            <h1 className="text-xl md:text-xl font-bold break-words text-gray-900">
+              {post.title}
+            </h1>
+          </motion.div>
+
+          {/* Content */}
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
+            className="space-y-2"
           >
-            {post.content}
-          </motion.article>
+            <h2 className="text-lg font-semibold text-purple-900">Content:</h2>
+            <article className="text-gray-800 leading-relaxed whitespace-pre-line break-words text-base md:text-lg">
+              {post.content}
+            </article>
+          </motion.div>
         </div>
 
         {/* Comments */}
         <aside className="space-y-6 sticky top-10 h-fit">
           <motion.h2
-            className="text-lg md:text-xl font-bold text-purple-900"
+            className="text-lg md:text-xl font-bold "
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}

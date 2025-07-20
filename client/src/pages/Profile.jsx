@@ -40,7 +40,7 @@ export default function Profile() {
       animate={{ opacity: 1 }}
     >
       <div className="w-full max-w-lg p-8 bg-white rounded-3xl shadow-2xl backdrop-blur-sm">
-        <h2 className="text-4xl font-bold mb-8 text-center text-purple-800">
+        <h2 className="text-4xl font-bold mb-8 text-center ">
           My Profile
         </h2>
 
