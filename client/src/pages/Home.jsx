@@ -110,7 +110,7 @@ export default function Home() {
                   </AnimatePresence>
 
                   <div className="relative p-6 flex flex-col h-full z-10">
-                    <h2 className="text-2xl font-extrabold text-gray-800 mb-3 leading-tight">
+                    <h2 className="text-2xl  font-bold text-gray-800 mb-3 leading-tight">
                       {post.title}
                     </h2>
 

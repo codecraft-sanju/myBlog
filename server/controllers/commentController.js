@@ -25,7 +25,8 @@ export const getComments = async (req, res) => {
   try {
     const comments = await Comment.find({ post: req.params.postId }).populate(
       'user',
-      'username',
+      'username profilePic',
+      
     );
     res.status(200).json(comments);
   } catch (err) {

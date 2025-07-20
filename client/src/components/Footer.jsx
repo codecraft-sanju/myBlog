@@ -1,9 +1,14 @@
 import { Link } from 'react-router-dom';
 import { Github, Linkedin, Twitter } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function Footer() {
+
+    const token = localStorage.getItem('token')
+   
+
   return (
-    <footer className="bg-white/20 backdrop-blur-xl border-t border-white/20 mt-20">
+    <footer className={`bg-white/20 backdrop-blur-xl border-t border-white/20 mt-20 ${token ? "hidden" :""}`}>
       <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
         
         {/* Logo + Tagline */}

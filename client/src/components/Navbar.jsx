@@ -2,6 +2,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { LogOut, Menu, PlusCircle, UserCircle, X } from 'lucide-react';
+import { assets } from '../assets/assets';
+
 
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
@@ -41,13 +43,13 @@ export default function Navbar() {
 >
   {user.profilePic ? (
     <img
-      src={user.profilePic}
+      src={user?.profilePic}
       alt="Profile"
       className="w-8 h-8 rounded-full object-cover"
     />
   ) : (
     <img
-      src="./defaultProfile.png"
+      src={assets.defaultpic}
       alt="Default Profile"
       className="w-8 h-8 rounded-full object-cover"
     />

@@ -93,14 +93,22 @@ export default function PostDetail() {
                 key={c._id}
                 className="flex items-start gap-4 bg-white/50 backdrop-blur p-4 rounded-2xl border border-white/30"
               >
-                <div className="flex-shrink-0 bg-purple-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold uppercase">
-                  {c.user.username.charAt(0)}
-                </div>
+                {c.user.profilePic ? (
+                  <img
+                    src={c.user.profilePic}
+                    alt={c.user.username}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-purple-600"
+                  />
+                ) : (
+                  <div className="flex-shrink-0 bg-purple-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold uppercase">
+                    {c.user.username.charAt(0)}
+                  </div>
+                )}
                 <div>
                   <p className="font-semibold text-purple-800 mb-1 break-words">
                     {c.user.username}
                   </p>
-                  <p className="text-gray-700 break-words">{c.text}</p>
+                  <p className="text-gray-700 break-all">{c.text}</p>
                 </div>
               </div>
             ))}
@@ -109,11 +117,11 @@ export default function PostDetail() {
           {user && (
             <form
               onSubmit={handleAddComment}
-              className="mt-8 flex flex-col gap-4"
+              className="mt-8 flex flex-col gap-4 word-break"
             >
               <textarea
                 placeholder="Write your comment..."
-                className="border border-purple-200 bg-white/40 rounded-2xl p-4 focus:ring-2 focus:ring-purple-400 resize-none text-gray-800 shadow-sm"
+                className="border border-purple-200 bg-white/40 rounded-2xl p-4 focus:ring-2 focus:ring-purple-400 resize-none text-gray-800 shadow-sm word-break"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 rows={4}

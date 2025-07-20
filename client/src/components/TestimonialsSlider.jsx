@@ -13,8 +13,9 @@ const testimonials = [
 ];
 
 export default function TestimonialsSlider() {
+  const token = localStorage.getItem('token')
   return (
-    <section className="relative overflow-hidden py-20 bg-gradient-to-r from-purple-50 via-purple-100 to-purple-50">
+    <section className={`relative overflow-hidden py-20 bg-gradient-to-r from-purple-50 via-purple-100 to-purple-50 ${token && "hidden"}`}>
       <h2 className="text-center text-4xl font-extrabold text-purple-700 mb-12">
         What Our Users Say
       </h2>
