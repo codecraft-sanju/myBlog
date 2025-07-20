@@ -14,7 +14,7 @@ export const imagekit = new ImageKit({
 //  Test ImageKit connection
 export const testImagekitConnection = async () => {
   try {
-    console.log(' [DEBUG] Testing ImageKit connection...');
+    
     const result = await imagekit.listFiles({ limit: 1 });
     
   } catch (err) {
