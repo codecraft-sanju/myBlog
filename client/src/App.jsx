@@ -11,6 +11,7 @@ import PostDetail from './pages/PostDetail';
 import CreatePost from './pages/CreatePost';
 import Profile from './pages/Profile'; 
 import ProtectedRoute from './components/ProtectedRoute';
+import Footer from './components/Footer';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
                 }
               /> 
             </Routes>
+              <Footer /> 
           </BrowserRouter>
         </CommentProvider>
       </PostProvider>
