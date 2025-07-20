@@ -34,7 +34,27 @@ export default function Navbar() {
               >
                 <PlusCircle size={20} /> New Post
               </Link>
-              <span className="text-gray-700">{user.username}</span>
+
+             <Link
+  to="/profile"
+  className="flex items-center gap-2"
+>
+  {user.profilePic ? (
+    <img
+      src={user.profilePic}
+      alt="Profile"
+      className="w-8 h-8 rounded-full object-cover"
+    />
+  ) : (
+    <img
+      src="./defaultProfile.png"
+      alt="Default Profile"
+      className="w-8 h-8 rounded-full object-cover"
+    />
+  )}
+</Link>
+
+
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-1 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
@@ -71,7 +91,27 @@ export default function Navbar() {
               >
                 <PlusCircle size={20} /> New Post
               </Link>
-              <span className="text-gray-700">{user.username}</span>
+
+             <Link
+  to="/profile"
+  onClick={() => setMenuOpen(false)}
+  className="flex items-center gap-2"
+>
+  {user.profilePic ? (
+    <img
+      src={user.profilePic}
+      alt="Profile"
+      className="w-8 h-8 rounded-full object-cover"
+    />
+  ) : (
+    <img
+      src="./defaultProfile.png"
+      alt="Default Profile"
+      className="w-8 h-8 rounded-full object-cover"
+    />
+  )}
+</Link>
+
               <button
                 onClick={() => {
                   handleLogout();

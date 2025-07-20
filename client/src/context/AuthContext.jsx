@@ -31,10 +31,35 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateProfile = async (formData) => {
+    const token = localStorage.getItem('token');
+
+    const res = await API.put('/users/profile', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    localStorage.setItem('user', JSON.stringify(res.data));
+    setUser(res.data);
+
+    return res.data; 
+  };
+
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        login,
+        register,
+        logout,
+        updateProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

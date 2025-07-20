@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import PostDetail from './pages/PostDetail';
 import CreatePost from './pages/CreatePost';
+import Profile from './pages/Profile'; 
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -31,6 +32,13 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route  path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              /> 
             </Routes>
           </BrowserRouter>
         </CommentProvider>

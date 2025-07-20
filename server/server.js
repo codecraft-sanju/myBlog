@@ -3,7 +3,9 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
+import userRoutes from './routes/users.js';
 // import rateLimit from 'express-rate-limit';
+import { testImagekitConnection } from './controllers/userController.js';
 
 dotenv.config();
 
@@ -34,6 +36,7 @@ import commentRoutes from './routes/comments.js';
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running');
@@ -51,5 +54,6 @@ mongoose
     app.listen(PORT, () =>
       console.log(` Server running at http://localhost:${PORT}`),
     );
+     testImagekitConnection();
   })
   .catch((err) => console.error(' MongoDB connection error:', err));
