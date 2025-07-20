@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen,
-  User2,
   Calendar,
   ArrowRight,
   Heart,
@@ -14,11 +13,13 @@ import {
 
 import HeroSection from '../components/HeroSection';
 import TestimonialsSlider from '../components/TestimonialsSlider';
+import toast from 'react-hot-toast';
 
 export default function Home() {
-  const { posts, getPosts, likePost, deletePost } = useContext(PostContext);
+  const { posts: globalPosts, getPosts, likePost, deletePost } = useContext(PostContext);
   const { user } = useContext(AuthContext);
 
+  const [posts, setPosts] = useState([]);
   const [bigHearts, setBigHearts] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -31,8 +32,39 @@ export default function Home() {
     fetchPosts();
   }, []);
 
+  // keep local in sync if context updates
+  useEffect(() => {
+    setPosts(globalPosts);
+  }, [globalPosts]);
+
   const handleLike = async (postId) => {
-    await likePost(postId);
+    if (!user) return;
+
+    const postIndex = posts.findIndex((p) => p._id === postId);
+    if (postIndex === -1) return;
+
+    const updatedPosts = [...posts];
+    const post = { ...updatedPosts[postIndex] };
+
+    const hasLiked = post.likes.includes(user.id);
+
+    // ✅ Optimistic update
+    if (hasLiked) {
+      post.likes = post.likes.filter((id) => id !== user.id);
+    } else {
+      post.likes = [...post.likes, user.id];
+    }
+    updatedPosts[postIndex] = post;
+    setPosts(updatedPosts);
+
+    try {
+      await likePost(postId);
+    } catch (err) {
+      // rollback
+      toast.error('Could not update like, reverting...');
+      updatedPosts[postIndex] = { ...post, likes: hasLiked ? [...post.likes, user.id] : post.likes.filter((id) => id !== user.id) };
+      setPosts(updatedPosts);
+    }
   };
 
   const handleDelete = async (postId) => {
@@ -46,15 +78,15 @@ export default function Home() {
   const handleDoubleClick = async (post) => {
     if (!user) return;
 
-    if (hasUserLiked(post)) {
-      await likePost(post._id);
-    } else {
-      await likePost(post._id);
+    if (!hasUserLiked(post)) {
+      // Big heart only on like
       setBigHearts((prev) => ({ ...prev, [post._id]: true }));
       setTimeout(() => {
         setBigHearts((prev) => ({ ...prev, [post._id]: false }));
       }, 800);
     }
+
+    handleLike(post._id);
   };
 
   const Loader = () => (
@@ -74,10 +106,8 @@ export default function Home() {
 
   return (
     <>
-      {/*  HERO SECTION */}
       <HeroSection />
 
-      {/*  POSTS OR LOADER */}
       {loading ? (
         <Loader />
       ) : (
@@ -113,7 +143,6 @@ export default function Home() {
                     exit={{ opacity: 0, y: 30 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    {/* Big heart animation */}
                     <AnimatePresence>
                       {bigHearts[post._id] && (
                         <motion.div
@@ -203,7 +232,6 @@ export default function Home() {
         </motion.div>
       )}
 
-      {/*  TESTIMONIALS SLIDER */}
       <TestimonialsSlider />
     </>
   );
