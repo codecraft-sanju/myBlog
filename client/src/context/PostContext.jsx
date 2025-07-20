@@ -14,8 +14,8 @@ export const PostProvider = ({ children }) => {
       const res = await API.get(`/posts?page=${page}&limit=${limit}`);
       setPosts(res.data);
     } catch (err) {
-      console.error('❌ Failed to load posts:', err);
-      setPosts([]); // fallback
+      console.error(' Failed to load posts:', err);
+      setPosts([]); 
     }
   };
 
