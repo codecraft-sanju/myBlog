@@ -1,16 +1,9 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { PostContext } from '../context/PostContext';
 import { AuthContext } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  BookOpen,
-  Calendar,
-  ArrowRight,
-  Heart,
-  Trash2,
-} from 'lucide-react';
-
+import { BookOpen, Calendar, ArrowRight, Heart, Trash2 } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import TestimonialsSlider from '../components/TestimonialsSlider';
 import toast from 'react-hot-toast';
@@ -23,6 +16,9 @@ export default function Home() {
   const [bigHearts, setBigHearts] = useState({});
   const [loading, setLoading] = useState(true);
 
+  // Mobile double tap detector ref
+  const lastTapRef = useRef({});
+
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true);
@@ -32,7 +28,6 @@ export default function Home() {
     fetchPosts();
   }, []);
 
-  // keep local in sync if context updates
   useEffect(() => {
     setPosts(globalPosts);
   }, [globalPosts]);
@@ -45,48 +40,59 @@ export default function Home() {
 
     const updatedPosts = [...posts];
     const post = { ...updatedPosts[postIndex] };
-
     const hasLiked = post.likes.includes(user.id);
 
-    // ✅ Optimistic update
+    //  Optimistic update
     if (hasLiked) {
       post.likes = post.likes.filter((id) => id !== user.id);
     } else {
       post.likes = [...post.likes, user.id];
     }
+
     updatedPosts[postIndex] = post;
     setPosts(updatedPosts);
 
     try {
       await likePost(postId);
-    } catch (err) {
-      // rollback
-      toast.error('Could not update like, reverting...');
-      updatedPosts[postIndex] = { ...post, likes: hasLiked ? [...post.likes, user.id] : post.likes.filter((id) => id !== user.id) };
+    } catch {
+      // toast.error('Could not update like, reverting...');
+      // Rollback
+      post.likes = hasLiked ? [...post.likes, user.id] : post.likes.filter((id) => id !== user.id);
+      updatedPosts[postIndex] = post;
       setPosts(updatedPosts);
     }
   };
 
   const handleDelete = async (postId) => {
     await deletePost(postId);
+    toast.success('Post deleted.');
   };
 
-  const hasUserLiked = (post) => {
-    return post.likes?.includes(user.id);
-  };
+  const hasUserLiked = (post) => post.likes?.includes(user.id);
 
-  const handleDoubleClick = async (post) => {
+  // Double click handler (desktop) + show heart
+  const handleDoubleClick = (post) => {
     if (!user) return;
-
     if (!hasUserLiked(post)) {
-      // Big heart only on like
+      // Show big heart immediately
       setBigHearts((prev) => ({ ...prev, [post._id]: true }));
       setTimeout(() => {
         setBigHearts((prev) => ({ ...prev, [post._id]: false }));
       }, 800);
+      handleLike(post._id);
+    }
+  };
+
+  //  Mobile double tap handler
+  const handleTouch = (post) => {
+    const now = Date.now();
+    const lastTap = lastTapRef.current[post._id] || 0;
+
+    if (now - lastTap < 300) {
+      handleDoubleClick(post);
     }
 
-    handleLike(post._id);
+    lastTapRef.current[post._id] = now;
   };
 
   const Loader = () => (
@@ -111,7 +117,7 @@ export default function Home() {
       {loading ? (
         <Loader />
       ) : (
-        <motion.div
+        <motion.section
           className="max-w-7xl mx-auto py-20 px-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -136,7 +142,8 @@ export default function Home() {
                   <motion.div
                     key={post._id}
                     onDoubleClick={() => handleDoubleClick(post)}
-                    className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/20 backdrop-blur-lg shadow-2xl group transition-all duration-500 cursor-pointer"
+                    onTouchStart={() => handleTouch(post)}
+                    className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/20 backdrop-blur-lg shadow-2xl transition-all duration-500 cursor-pointer"
                     whileHover={{ scale: 1.04, rotate: -1 }}
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -162,10 +169,17 @@ export default function Home() {
                     </AnimatePresence>
 
                     <div className="relative p-6 flex flex-col h-full z-10">
-                      <h2 className="text-2xl font-bold text-gray-800 mb-3 leading-tight">
-                        {post.title}
-                      </h2>
+                      {/* Title */}
+                      <div className="mb-3">
+                        <span className="block text-xs uppercase tracking-wider text-purple-600 font-semibold mb-1">
+                          Title
+                        </span>
+                        <h2 className="text-2xl font-bold text-gray-800 leading-tight break-words hyphens-auto line-clamp-2">
+                          {post.title}
+                        </h2>
+                      </div>
 
+                      {/* Author + Date */}
                       <div className="flex items-center text-gray-600 text-sm mb-4 gap-3">
                         {post.author.profilePic ? (
                           <img
@@ -181,31 +195,50 @@ export default function Home() {
                         <span>{post.author.username}</span>
                         <span className="text-gray-400">•</span>
                         <Calendar size={16} className="text-purple-600" />
-                        <span>
-                          {new Date(post.createdAt).toLocaleDateString()}
-                        </span>
+                        <span>{new Date(post.createdAt).toLocaleDateString()}</span>
                       </div>
 
-                      <p className="text-gray-700 mb-6 line-clamp-4 flex-1">
-                        {post.content}
-                      </p>
+                      {/* Content */}
+                      <div className="mb-6 flex-1">
+                        <span className="block text-xs uppercase tracking-wider text-purple-600 font-semibold mb-1">
+                          Content
+                        </span>
+                        <p className="text-gray-700 break-words hyphens-auto overflow-hidden line-clamp-3">
+                          {post.content}
+                        </p>
+                      </div>
 
-                      <Link
-                        to={`/post/${post._id}`}
-                        className="flex items-center gap-2 text-purple-700 font-semibold hover:underline"
-                      >
-                        Read More <ArrowRight size={16} />
-                      </Link>
+                    <Link
+  to={`/post/${post._id}`}
+  className="relative hidden md:inline-flex items-center gap-2 px-5 py-2 border border-purple-700 text-purple-700 font-semibold overflow-hidden group transition-transform duration-300"
+>
+  <span className="relative z-10 transition-colors duration-300 group-hover:text-white">
+    Read More
+  </span>
+  <ArrowRight
+    size={16}
+    className="relative z-10 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white"
+  />
+  <span className="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-800 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out"></span>
+  <span className="absolute inset-0 bg-white/20 blur-lg translate-x-[-150%] group-hover:translate-x-[150%] transition-transform duration-700 ease-out"></span>
+</Link>
 
+{/* Simple link for mobile */}
+<Link
+  to={`/post/${post._id}`}
+  className="md:hidden inline-flex items-center gap-2 text-purple-700 font-semibold underline"
+>
+  Read More <ArrowRight size={16} />
+</Link>
+
+                      {/* Like */}
                       {user && (
                         <motion.button
                           whileTap={{ scale: 0.9 }}
                           onClick={() => handleLike(post._id)}
                           className={`mt-4 flex items-center gap-2 ${
-                            hasUserLiked(post)
-                              ? 'text-red-600'
-                              : 'text-gray-600'
-                          } hover:underline`}
+                            hasUserLiked(post) ? 'text-red-600' : 'text-gray-600'
+                          }`}
                         >
                           <Heart
                             size={18}
@@ -215,10 +248,11 @@ export default function Home() {
                         </motion.button>
                       )}
 
+                      {/* Delete */}
                       {isOwner && (
                         <button
                           onClick={() => handleDelete(post._id)}
-                          className="mt-2 flex items-center gap-2 text-red-700 hover:underline"
+                          className="mt-2 flex items-center gap-2 text-red-700"
                         >
                           <Trash2 size={18} /> Delete
                         </button>
@@ -229,7 +263,7 @@ export default function Home() {
               })}
             </AnimatePresence>
           </div>
-        </motion.div>
+        </motion.section>
       )}
 
       <TestimonialsSlider />

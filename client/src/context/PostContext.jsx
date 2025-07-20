@@ -57,7 +57,7 @@ export const PostProvider = ({ children }) => {
       return;
     }
     const res = await API.put(`/posts/${id}/like`);
-    toast.success(res.data.likedByUser ? 'Liked!' : 'Unliked!');
+    // toast.success(res.data.likedByUser ? 'Liked!' : 'Unliked!');
     getPosts();
     return res.data;
   };
